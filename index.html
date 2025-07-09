@@ -7,27 +7,26 @@
   <style>
     :root {
       --accent: #4a90e2;
-      --accent-light: #eaf4fb;
-      --border: #e0e2e6;
-      --shadow: 0 2px 16px rgba(44,62,80,0.06);
-      --radius: 16px;
-      --bg: #f7f7f8;
+      --bg: #f7f8fa;
       --surface: #fff;
       --text: #23272f;
       --text-secondary: #737a86;
+      --border: #e0e2e6;
+      --shadow: 0 2px 16px rgba(44,62,80,0.06);
+      --radius: 16px;
       --checked: #4a90e2;
       --checked-bg: #eaf4fb;
-      --checked-shadow: 0 0 0 3px #eaf4fb;
-      --transition: 0.17s cubic-bezier(.4,2,.6,1);
+      --transition: 0.16s cubic-bezier(.4,2,.6,1);
     }
-    html, body { background: var(--bg); margin: 0; padding: 0; font-family: system-ui, sans-serif; color: var(--text);}
+    html, body { background: var(--bg); margin: 0; padding: 0; font-family: system-ui,sans-serif; color: var(--text);}
     .container {
-      max-width: 480px;
-      margin: 32px auto;
+      max-width: 490px;
+      margin: 30px auto;
       background: var(--surface);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 30px 20px 20px 20px;
+      padding: 26px 16px 20px 16px;
+      box-sizing: border-box;
     }
     h1 {
       text-align: center;
@@ -35,25 +34,77 @@
       font-weight: 800;
       letter-spacing: -1px;
       color: var(--text);
-      margin-bottom: 5px;
+      margin-bottom: 0;
     }
     .subtitle {
       text-align: center;
       color: var(--text-secondary);
-      margin-bottom: 26px;
+      margin-bottom: 18px;
+      font-size: 1.02rem;
+    }
+    .mood-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .mood-prompt {
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 7px;
       font-size: 1.05rem;
     }
-    .stats {
+    .mood-btns {
       display: flex;
+      gap: 7px;
+    }
+    .mood-btn {
+      background: #f6fafd;
+      border: 1.5px solid var(--border);
+      border-radius: 50%;
+      font-size: 1.22rem;
+      width: 38px; height: 38px;
+      cursor: pointer;
+      transition: background 0.16s, border 0.16s, transform 0.13s;
+      color: var(--text-secondary);
+      outline: none;
+      box-shadow: 0 1px 4px #4a90e20a;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mood-btn.selected {
+      background: var(--checked-bg);
+      border-color: var(--checked);
+      color: var(--checked);
+      transform: scale(1.13);
+    }
+    .statsbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 20px;
       justify-content: space-between;
       align-items: center;
-      background: var(--accent-light);
+      background: var(--accent);
+      color: #fff;
       border-radius: var(--radius);
-      padding: 13px 16px;
-      margin-bottom: 18px;
-      font-size: 1.07rem;
-      box-shadow: 0 1.5px 6px #4a90e208;
+      padding: 13px 15px 11px 15px;
+      margin-bottom: 15px;
+      font-size: 1.02rem;
       font-weight: 500;
+      box-shadow: 0 1.5px 6px #4a90e208;
+    }
+    .statsbar span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .favorite-category {
+      background: #fff3c2;
+      color: #ad7f00;
+      border-radius: 8px;
+      padding: 2px 8px;
+      font-size: 0.96em;
+      font-weight: 600;
+      margin-left: 6px;
     }
     .progress-bar {
       width: 100%;
@@ -61,8 +112,8 @@
       border-radius: 8px;
       overflow: hidden;
       height: 12px;
-      margin-bottom: 20px;
-      margin-top: 5px;
+      margin-bottom: 18px;
+      margin-top: 6px;
     }
     .progress {
       background: linear-gradient(90deg, #4a90e2 80%, #8ec9f8 100%);
@@ -71,10 +122,10 @@
       transition: width var(--transition);
     }
     .category {
-      margin-bottom: 30px;
+      margin-bottom: 32px;
     }
     .cat-title {
-      font-size: 1.12rem;
+      font-size: 1.11rem;
       font-weight: 700;
       margin-bottom: 12px;
       color: var(--text);
@@ -94,6 +145,7 @@
       padding: 10px 0 10px 0;
       border-bottom: 1px solid var(--border);
       transition: background 0.13s;
+      position: relative;
     }
     .reward-item:last-child { border-bottom: none; }
     .reward-checkbox {
@@ -106,12 +158,13 @@
       transition: border-color var(--transition), background var(--transition), box-shadow var(--transition), transform 0.11s;
       box-shadow: 0 0.5px 3px #4a90e20c;
       position: relative;
+      flex-shrink: 0;
     }
     .reward-checkbox.checked {
       border-color: var(--checked);
       background: var(--checked-bg);
-      box-shadow: var(--checked-shadow);
-      animation: reward-bounce 0.18s;
+      box-shadow: 0 0 0 3px #eaf4fb;
+      animation: reward-bounce 0.15s;
       color: var(--checked);
     }
     @keyframes reward-bounce {
@@ -141,6 +194,17 @@
       text-decoration: line-through;
       opacity: 0.7;
     }
+    .remove-reward-btn {
+      border: none;
+      background: none;
+      color: #b03c3c;
+      font-size: 1.1em;
+      cursor: pointer;
+      margin-left: 8px;
+      opacity: 0.65;
+      transition: color 0.18s, opacity 0.12s;
+    }
+    .remove-reward-btn:hover { color: #e53e3e; opacity: 1;}
     .add-reward {
       display: flex;
       gap: 8px;
@@ -170,35 +234,6 @@
     }
     .add-reward button:active { transform: scale(1.09);}
     .add-reward button:hover { background: #357abd; }
-    .mood-section {
-      margin: 25px 0 10px 0;
-      text-align: center;
-    }
-    .mood-prompt {
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 7px;
-    }
-    .mood-btn {
-      background: #f6fafd;
-      border: 1.5px solid var(--border);
-      border-radius: 50%;
-      font-size: 1.19rem;
-      margin: 0 8px;
-      padding: 7px 0;
-      width: 38px; height: 38px;
-      cursor: pointer;
-      transition: background 0.16s, border 0.16s, transform 0.13s;
-      color: var(--text-secondary);
-      outline: none;
-      box-shadow: 0 1px 4px #4a90e20a;
-    }
-    .mood-btn.selected {
-      background: var(--checked-bg);
-      border-color: var(--checked);
-      color: var(--checked);
-      transform: scale(1.13);
-    }
     .activity-log {
       margin: 32px 0 0 0;
     }
@@ -239,48 +274,90 @@
       transition: background 0.14s;
     }
     .reset-btn:hover { background: #f5eaea; }
+    .celebrate {
+      display: none;
+      text-align: center;
+      font-size: 1.13rem;
+      background: #eaf4fb;
+      color: #4a90e2;
+      border-radius: 10px;
+      padding: 10px 0 8px 0;
+      font-weight: 700;
+      margin-bottom: 13px;
+      animation: pop-celebrate 0.7s;
+    }
+    @keyframes pop-celebrate {
+      0% { transform: scale(0.4);}
+      80% { transform: scale(1.08);}
+      100% { transform: scale(1);}
+    }
+    .export-import-bar {
+      display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end;
+    }
+    .export-btn, .import-btn {
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      color: var(--accent);
+      font-size: 0.97em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.1s, border 0.13s;
+    }
+    .export-btn:hover, .import-btn:hover { border-color: var(--accent); background: #eaf4fb;}
     @media (max-width: 600px) {
-      .container { max-width: 99vw; padding: 13px 2px;}
-      h1 { font-size: 1.25rem;}
-      .stats { font-size: 0.97rem;}
-      .cat-title { font-size: 1rem;}
+      .container { max-width: 99vw; padding: 12px 2px;}
+      h1 { font-size: 1.19rem;}
+      .statsbar { font-size: 0.98rem;}
+      .cat-title { font-size: 0.97rem;}
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <div class="mood-section">
+      <div class="mood-prompt">How's your mood?</div>
+      <div class="mood-btns">
+        <button class="mood-btn" data-mood="😊" aria-label="Great">😊</button>
+        <button class="mood-btn" data-mood="🙂" aria-label="Good">🙂</button>
+        <button class="mood-btn" data-mood="😐" aria-label="Meh">😐</button>
+        <button class="mood-btn" data-mood="😕" aria-label="Low">😕</button>
+        <button class="mood-btn" data-mood="😞" aria-label="Rough">😞</button>
+      </div>
+    </div>
     <h1>Dopamine Rewards Tracker</h1>
     <div class="subtitle">Build momentum with small rewards and positive habits.</div>
-    <div class="stats" aria-live="polite">
-      <span id="done-count">0 done</span>
-      <span id="total-count">0 total</span>
+    <div class="statsbar">
+      <span><b>Today</b>: <span id="stat-today">0</span></span>
+      <span><b>Week Avg</b>: <span id="stat-week">0</span></span>
+      <span><b>Favorite</b>: <span id="stat-fav" class="favorite-category">-</span></span>
     </div>
+    <div id="celebrate" class="celebrate">🎉 All rewards complete! 🎉</div>
     <div class="progress-bar" aria-label="Progress">
       <div class="progress" id="progress-bar" style="width:0%"></div>
     </div>
     <div id="categories"></div>
-    <div class="mood-section">
-      <div class="mood-prompt">How's your mood?</div>
-      <button class="mood-btn" data-mood="😊" aria-label="Great">😊</button>
-      <button class="mood-btn" data-mood="🙂" aria-label="Good">🙂</button>
-      <button class="mood-btn" data-mood="😐" aria-label="Meh">😐</button>
-      <button class="mood-btn" data-mood="😕" aria-label="Low">😕</button>
-      <button class="mood-btn" data-mood="😞" aria-label="Rough">😞</button>
-    </div>
     <div class="activity-log">
       <div class="activity-log-title">Recent Activity</div>
       <div id="activityLog"></div>
       <button class="reset-btn" onclick="resetDaily()">Reset Today's Progress</button>
+      <div class="export-import-bar">
+        <button class="export-btn" onclick="exportData()">Export</button>
+        <label class="import-btn" style="cursor:pointer;">
+          Import <input type="file" style="display:none" onchange="importData(event)">
+        </label>
+      </div>
     </div>
   </div>
   <script>
-    // Premium, neutral rewards
+    // --- Categories and Defaults ---
     const defaultCategories = [
       {
         name: "Quick Wins",
         emoji: "⚡",
         rewards: [
-          "Play a 30-second song clip",
+          "Play a short song clip",
           "Open a window, breathe fresh air",
           "Drink water or a favorite beverage",
           "Send a meme or emoji to a friend",
@@ -314,22 +391,30 @@
       }
     ];
 
-    // State
+    // --- State Management ---
     let appState = JSON.parse(localStorage.getItem('dopamine-state') || 'null') || {
       categories: JSON.parse(JSON.stringify(defaultCategories)),
       checked: {},
       mood: null,
-      activity: []
+      activity: [],
+      dailyStats: {}, // { date: count }
     };
 
-    // Render categories and rewards
+    // --- Mood Tracker ---
+    document.querySelectorAll('.mood-btn').forEach(btn => {
+      btn.onclick = function() {
+        appState.mood = btn.dataset.mood;
+        saveAndRender();
+      }
+    });
+
+    // --- Categories and Rewards Rendering ---
     function renderCategories() {
       const categoriesDiv = document.getElementById('categories');
       categoriesDiv.innerHTML = '';
       appState.categories.forEach((cat, cIdx) => {
         const catDiv = document.createElement('div');
         catDiv.className = 'category';
-
         const title = document.createElement('div');
         title.className = 'cat-title';
         title.innerHTML = `<span>${cat.emoji}</span> ${cat.name}`;
@@ -351,15 +436,12 @@
           box.dataset.cat = cIdx;
           box.dataset.rew = rIdx;
           if (appState.checked[key]) box.classList.add('checked');
-
-          // SVG checkmark
           box.innerHTML = `
             <svg viewBox="0 0 18 18">
               <polyline points="4 10 8 14 14 5" fill="none"/>
             </svg>
           `;
           box.onclick = () => toggleReward(cIdx, rIdx, reward, cat.name);
-
           box.onkeydown = (e) => {
             if (e.key === " " || e.key === "Enter") toggleReward(cIdx, rIdx, reward, cat.name);
           };
@@ -371,6 +453,24 @@
 
           li.appendChild(box);
           li.appendChild(label);
+
+          // Remove button for custom rewards only
+          const isCustom = cIdx < defaultCategories.length && rIdx >= defaultCategories[cIdx].rewards.length
+                        || cIdx >= defaultCategories.length;
+          if (isCustom) {
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = '×';
+            removeBtn.className = 'remove-reward-btn';
+            removeBtn.title = 'Remove this custom reward';
+            removeBtn.onclick = (e) => {
+              e.stopPropagation();
+              appState.categories[cIdx].rewards.splice(rIdx, 1);
+              // Remove any checked state for this reward
+              delete appState.checked[key];
+              saveAndRender();
+            };
+            li.appendChild(removeBtn);
+          }
           ul.appendChild(li);
         });
 
@@ -397,12 +497,11 @@
         addDiv.appendChild(btn);
         catDiv.appendChild(ul);
         catDiv.appendChild(addDiv);
-
         categoriesDiv.appendChild(catDiv);
       });
     }
 
-    // Reward toggle
+    // --- Reward Toggle ---
     function toggleReward(cIdx, rIdx, rewardText, catName) {
       const key = `cat${cIdx}-rew${rIdx}`;
       appState.checked[key] = !appState.checked[key];
@@ -414,7 +513,6 @@
           time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
         });
       } else {
-        // Remove most recent matching log
         const idx = appState.activity.findIndex(
           entry => entry.reward === rewardText && entry.category === catName
         );
@@ -431,24 +529,7 @@
       }, 0);
     }
 
-    // Mood selection
-    document.querySelectorAll('.mood-btn').forEach(btn => {
-      btn.onclick = function() {
-        appState.mood = btn.dataset.mood;
-        saveAndRender();
-      }
-    });
-
-    // Stats and progress
-    function renderStats() {
-      const total = Object.values(appState.checked).filter(Boolean).length;
-      const grand = appState.categories.reduce((s, cat, i) => s + cat.rewards.length, 0);
-      document.getElementById('done-count').textContent = `${total} done`;
-      document.getElementById('total-count').textContent = `${grand} total`;
-      document.getElementById('progress-bar').style.width = grand === 0 ? "0%" : Math.round(total * 100 / grand) + "%";
-    }
-
-    // Activity log
+    // --- Activity Log ---
     function renderActivityLog() {
       const logDiv = document.getElementById('activityLog');
       logDiv.innerHTML = '';
@@ -463,23 +544,106 @@
       }
     }
 
-    // Mood
+    // --- Stats, Progress, Mood, and Streak ---
+    function saveDailyCount(count) {
+      const today = new Date().toISOString().slice(0,10);
+      appState.dailyStats[today] = count;
+      // Keep only last 14 days
+      const keys = Object.keys(appState.dailyStats);
+      if (keys.length > 14) {
+        keys.sort();
+        for(let i=0;i<keys.length-14;i++) delete appState.dailyStats[keys[i]];
+      }
+    }
+
+    function getWeeklyAverage() {
+      const days = Object.keys(appState.dailyStats).slice(-7);
+      if (days.length === 0) return 0;
+      const total = days.reduce((sum, d) => sum + (appState.dailyStats[d] || 0), 0);
+      return Math.round(total / days.length);
+    }
+
+    function getFavoriteCategory() {
+      // Tally checked per category for today
+      const counts = appState.categories.map((cat, cIdx) =>
+        cat.rewards.reduce((sum,_, rIdx) =>
+          sum + (appState.checked[`cat${cIdx}-rew${rIdx}`] ? 1 : 0), 0)
+      );
+      const max = Math.max(...counts);
+      if (!max) return '-';
+      const idx = counts.findIndex(c => c === max);
+      return appState.categories[idx].name;
+    }
+
+    function renderStatsBar() {
+      const todayCount = Object.values(appState.checked).filter(Boolean).length;
+      document.getElementById('stat-today').textContent = todayCount;
+      document.getElementById('stat-week').textContent = getWeeklyAverage();
+      document.getElementById('stat-fav').textContent = getFavoriteCategory();
+      document.getElementById('progress-bar').style.width =
+        appState.categories.reduce((s,cat)=>s+cat.rewards.length,0) === 0
+        ? "0%" :
+        Math.round(todayCount * 100 /
+          appState.categories.reduce((s,cat)=>s+cat.rewards.length,0)
+        )+"%";
+      // Save daily
+      saveDailyCount(todayCount);
+    }
+
+    // --- Mood Highlight ---
     function renderMood() {
       document.querySelectorAll('.mood-btn').forEach(btn => {
         btn.classList.toggle('selected', btn.dataset.mood === appState.mood);
       });
     }
 
-    // Save & render
+    // --- Celebration Banner ---
+    function renderCelebrate() {
+      const total = Object.values(appState.checked).filter(Boolean).length;
+      const grand = appState.categories.reduce((s, cat) => s + cat.rewards.length, 0);
+      document.getElementById('celebrate').style.display = (total > 0 && total === grand) ? 'block' : 'none';
+    }
+
+    // --- Export/Import Data ---
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState));
+      const a = document.createElement('a');
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", "dopamine-tracker-backup.json");
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported.categories && imported.checked && imported.activity) {
+            appState = imported;
+            saveAndRender();
+            alert('Import successful!');
+          } else {
+            alert('Invalid file format.');
+          }
+        } catch {
+          alert('Failed to import file.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // --- Save & Render All ---
     function saveAndRender() {
       localStorage.setItem('dopamine-state', JSON.stringify(appState));
       renderCategories();
-      renderStats();
+      renderStatsBar();
       renderActivityLog();
       renderMood();
+      renderCelebrate();
     }
 
-    // Reset
+    // --- Reset ---
     function resetDaily() {
       if (confirm("Reset all progress for today?")) {
         appState.checked = {};
@@ -489,7 +653,7 @@
       }
     }
 
-    // Initialize
+    // --- Initial Render ---
     saveAndRender();
   </script>
 </body>
