@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dopamine Rewards Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --primary: #6a9cfe;
+      --accent: #ffe066;
+      --bg: #fff;
+      --text: #222;
+      --border: #e0e0e0;
+      --radius: 14px;
+    }
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0; padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    .container {
+      max-width: 500px;
+      margin: 24px auto;
+      background: #f9f9f9;
+      border-radius: var(--radius);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 24px 16px 16px 16px;
+    }
+    h1 {
+      text-align: center;
+      margin: 0 0 12px 0;
+      font-size: 1.65rem;
+      font-weight: 700;
+    }
+    .categories {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .category {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 12px;
+      border: 1px solid var(--border);
+    }
+    .cat-title {
+      margin: 0 0 8px 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .rewards-list {
+      list-style: none;
+      padding: 0; margin: 0;
+    }
+    .reward-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+      gap: 8px;
+    }
+    .reward-box {
+      width: 22px; height: 22px;
+      border: 2px solid var(--primary);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      background: #fafcff;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .reward-box.checked {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .reward-label {
+      user-select: none;
+      flex: 1;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .add-reward {
+      display: flex;
+      gap: 8px;
+      margin-top: 7px;
+    }
+    .add-reward input {
+      flex: 1;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-size: 1rem;
+    }
+    .add-reward button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .add-reward button:hover { background: #5176c6; }
+    .stats {
+      margin: 16px 0 10px 0;
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 1rem;
+    }
+    .progress-bar {
+      width: 100%;
+      background: #e0e7ff;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 10px;
+      height: 14px;
+    }
+    .progress {
+      background: var(--primary);
+      height: 100%;
+      transition: width 0.3s;
+    }
+    .mood-section {
+      margin: 18px 0 8px 0;
+      text-align: center;
+    }
+    .mood-btn {
+      background: #edf2ff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1.3rem;
+      margin: 0 4px;
+      padding: 4px 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .mood-btn.selected {
+      background: var(--accent);
+      border-color: var(--primary);
+    }
+    @media (max-width: 600px) {
+      .container { max-width: 97vw; padding: 12px 4px; }
+      h1 { font-size: 1.25rem; }
+      .cat-title { font-size: 1rem; }
+      .stats { font-size: 0.97rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="main">
+    <h1>Dopamine Rewards Tracker</h1>
+    <div class="stats" aria-live="polite">
+      <span id="done-count">0 done</span>
+      <span id="total-count">0 total</span>
+    </div>
+    <div class="progress-bar" aria-label="Progress">
+      <div class="progress" id="progress-bar" style="width:0%"></div>
+    </div>
+    <div class="categories" id="categories"></div>
+    <div class="mood-section">
+      <div style="margin-bottom:4px;font-weight:500;">How's your mood?</div>
+      <button class="mood-btn" data-mood="😊" aria-label="Happy">😊</button>
+      <button class="mood-btn" data-mood="😐" aria-label="Neutral">😐</button>
+      <button class="mood-btn" data-mood="😞" aria-label="Sad">😞</button>
+    </div>
+    <div style="text-align:center; font-size:0.93rem; color:#888; margin-top:12px;">
+      Progress auto-saves · Works in Notion
+    </div>
+  </div>
+  <script>
+    // --------- Default Categories & Rewards ----------
+    const defaultCategories = [
+      {
+        name: "Quick Wins",
+        rewards: ["Drink water", "Stretch", "Deep breath", "Smile"]
+      },
+      {
+        name: "Growth",
+        rewards: ["Read a page", "Learn something new", "Reflect for 1 min"]
+      },
+      {
+        name: "Movement",
+        rewards: ["Walk 5 min", "Do 5 pushups", "Dance to a song"]
+      }
+    ];
+
+    // --------- Persistence Layer ----------
+    function saveState(state) {
+      localStorage.setItem('ddrtracker-state', JSON.stringify(state));
+    }
+    function loadState() {
+      const s = localStorage.getItem('ddrtracker-state');
+      if (!s) return null;
+      try { return JSON.parse(s); } catch { return null; }
+    }
+
+    // --------- App State ----------
+    let appState = loadState() || {
+      categories: JSON.parse(JSON.stringify(defaultCategories)),
+      checked: {}, // { "cat0-rew0": true }
+      mood: null
+    };
+
+    // --------- DOM Generation ----------
+    const categoriesDiv = document.getElementById('categories');
+    function renderCategories() {
+      categoriesDiv.innerHTML = '';
+      appState.categories.forEach((cat, cIdx) => {
+        const catDiv = document.createElement('div');
+        catDiv.className = 'category';
+
+        const title = document.createElement('div');
+        title.className = 'cat-title';
+        title.textContent = cat.name;
+        catDiv.appendChild(title);
+
+        // Rewards
+        const ul = document.createElement('ul');
+        ul.className = 'rewards-list';
+        cat.rewards.forEach((r, rIdx) => {
+          const li = document.createElement('li');
+          li.className = 'reward-item';
+
+          const box = document.createElement('div');
+          box.className = 'reward-box';
+          box.setAttribute('tabindex', 0);
+          box.setAttribute('role', 'checkbox');
+          box.setAttribute('aria-checked', !!appState.checked[`cat${cIdx}-rew${rIdx}`]);
+          box.dataset.cat = cIdx;
+          box.dataset.rew = rIdx;
+          if (appState.checked[`cat${cIdx}-rew${rIdx}`]) box.classList.add('checked');
+          box.addEventListener('click', () => toggleReward(cIdx, rIdx));
+          box.addEventListener('keydown', (e) => {
+            if (e.key === " " || e.key === "Enter") { toggleReward(cIdx, rIdx); }
+          });
+
+          if (box.classList.contains('checked')) {
+            box.innerHTML = "✔️";
+          }
+          li.appendChild(box);
+
+          const label = document.createElement('span');
+          label.className = 'reward-label';
+          label.textContent = r;
+          label.addEventListener('click', () => toggleReward(cIdx, rIdx));
+          li.appendChild(label);
+
+          ul.appendChild(li);
+        });
+        catDiv.appendChild(ul);
+
+        // Add reward input
+        const addDiv = document.createElement('div');
+        addDiv.className = 'add-reward';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'Custom reward...';
+        input.setAttribute('aria-label', 'Custom reward');
+        input.maxLength = 40;
+
+        const btn = document.createElement('button');
+        btn.textContent = '+';
+        btn.setAttribute('aria-label', 'Add custom reward');
+
+        btn.addEventListener('click', () => {
+          const val = input.value.trim();
+          if (val) {
+            appState.categories[cIdx].rewards.push(val);
+            saveAndRender();
+            input.value = '';
+          }
+        });
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') btn.click();
+        });
+
+        addDiv.appendChild(input);
+        addDiv.appendChild(btn);
+        catDiv.appendChild(addDiv);
+
+        categoriesDiv.appendChild(catDiv);
+      });
+    }
+
+    function toggleReward(cIdx, rIdx) {
+      const key = `cat${cIdx}-rew${rIdx}`;
+      appState.checked[key] = !appState.checked[key];
+      saveAndRender();
+      // Confetti effect on all done
+      if (getDoneCount() === getTotalCount()) confetti();
+    }
+
+    function getDoneCount() {
+      return Object.values(appState.checked).filter(Boolean).length;
+    }
+    function getTotalCount() {
+      return appState.categories.reduce((sum, cat, cIdx) =>
+        sum + cat.rewards.length, 0);
+    }
+
+    // --------- Stats & Progress Bar ----------
+    function renderStats() {
+      document.getElementById('done-count').textContent = `${getDoneCount()} done`;
+      document.getElementById('total-count').textContent = `${getTotalCount()} total`;
+      document.getElementById('progress-bar').style.width =
+        (getTotalCount() === 0 ? 0 : Math.round(getDoneCount()*100/getTotalCount())) + '%';
+    }
+
+    // --------- Mood Section ----------
+    document.querySelectorAll('.mood-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        appState.mood = btn.dataset.mood;
+        saveAndRender();
+      });
+    });
+    function renderMood() {
+      document.querySelectorAll('.mood-btn').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.mood === appState.mood);
+      });
+    }
+
+    // --------- Save & Render All ----------
+    function saveAndRender() {
+      saveState(appState);
+      renderCategories();
+      renderStats();
+      renderMood();
+    }
+
+    // --------- Fun: Confetti (simple dots) ----------
+    function confetti() {
+      for (let i = 0; i < 22; ++i) {
+        let el = document.createElement('div');
+        el.style.position = 'fixed';
+        el.style.left = Math.random()*100+'vw';
+        el.style.top = '-6vh';
+        el.style.fontSize = '1.4rem';
+        el.style.opacity = '0.95';
+        el.textContent = ['🎉','✨','🥳','🌟'][Math.floor(Math.random()*4)];
+        document.body.appendChild(el);
+        setTimeout(() => {
+          el.style.transition = 'top 1.5s ease';
+          el.style.top = (70+Math.random()*20)+'vh';
+        }, 1);
+        setTimeout(() => { el.remove(); }, 1800);
+      }
+    }
+
+    // --------- Init ---------
+    saveAndRender();
+  </script>
+</body>
+</html>
