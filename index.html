@@ -97,15 +97,6 @@
       align-items: center;
       gap: 6px;
     }
-    .favorite-category {
-      background: #fff3c2;
-      color: #ad7f00;
-      border-radius: 8px;
-      padding: 2px 8px;
-      font-size: 0.96em;
-      font-weight: 600;
-      margin-left: 6px;
-    }
     .progress-bar {
       width: 100%;
       background: #e7e9ec;
@@ -331,7 +322,8 @@
     <div class="statsbar">
       <span><b>Today</b>: <span id="stat-today">0</span></span>
       <span><b>Week Avg</b>: <span id="stat-week">0</span></span>
-      <span><b>Favorite</b>: <span id="stat-fav" class="favorite-category">-</span></span>
+      <span><b>Streak</b>: <span id="stat-streak">0</span></span>
+      <span><b>Mood</b>: <span id="stat-mood">-</span></span>
     </div>
     <div id="celebrate" class="celebrate">🎉 All rewards complete! 🎉</div>
     <div class="progress-bar" aria-label="Progress">
@@ -403,8 +395,15 @@
     // --- Mood Tracker ---
     document.querySelectorAll('.mood-btn').forEach(btn => {
       btn.onclick = function() {
-        appState.mood = btn.dataset.mood;
-        saveAndRender();
+        if (appState.mood !== btn.dataset.mood) {
+          appState.mood = btn.dataset.mood;
+          appState.activity.unshift({
+            reward: `Mood set to ${btn.dataset.mood}`,
+            category: 'Mood',
+            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+          });
+          saveAndRender();
+        }
       }
     });
 
@@ -465,7 +464,6 @@
             removeBtn.onclick = (e) => {
               e.stopPropagation();
               appState.categories[cIdx].rewards.splice(rIdx, 1);
-              // Remove any checked state for this reward
               delete appState.checked[key];
               saveAndRender();
             };
@@ -563,23 +561,29 @@
       return Math.round(total / days.length);
     }
 
-    function getFavoriteCategory() {
-      // Tally checked per category for today
-      const counts = appState.categories.map((cat, cIdx) =>
-        cat.rewards.reduce((sum,_, rIdx) =>
-          sum + (appState.checked[`cat${cIdx}-rew${rIdx}`] ? 1 : 0), 0)
-      );
-      const max = Math.max(...counts);
-      if (!max) return '-';
-      const idx = counts.findIndex(c => c === max);
-      return appState.categories[idx].name;
+    function getStreak() {
+      // Count consecutive days from today backwards with at least 1 reward checked
+      const days = Object.keys(appState.dailyStats).sort().reverse();
+      let streak = 0;
+      let day = new Date();
+      for (let i = 0; i < days.length; i++) {
+        const dayStr = day.toISOString().slice(0,10);
+        if (days[i] === dayStr && appState.dailyStats[dayStr] > 0) {
+          streak++;
+          day.setDate(day.getDate()-1);
+        } else if (days[i] === dayStr) {
+          break;
+        }
+      }
+      return streak;
     }
 
     function renderStatsBar() {
       const todayCount = Object.values(appState.checked).filter(Boolean).length;
       document.getElementById('stat-today').textContent = todayCount;
       document.getElementById('stat-week').textContent = getWeeklyAverage();
-      document.getElementById('stat-fav').textContent = getFavoriteCategory();
+      document.getElementById('stat-streak').textContent = getStreak();
+      document.getElementById('stat-mood').textContent = appState.mood || '-';
       document.getElementById('progress-bar').style.width =
         appState.categories.reduce((s,cat)=>s+cat.rewards.length,0) === 0
         ? "0%" :
