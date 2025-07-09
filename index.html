@@ -343,322 +343,324 @@
     </div>
   </div>
   <script>
-    // --- Categories and Defaults ---
-    const defaultCategories = [
-      {
-        name: "Quick Wins",
-        emoji: "⚡",
-        rewards: [
-          "Play a short song clip",
-          "Open a window, breathe fresh air",
-          "Drink water or a favorite beverage",
-          "Send a meme or emoji to a friend",
-          "Cross off a small to-do",
-          "Stretch for one minute"
-        ]
-      },
-      {
-        name: "Low-Energy Boosts",
-        emoji: "🌙",
-        rewards: [
-          "Watch a calming video",
-          "Wrap up in a blanket",
-          "Sip something warm, do nothing else",
-          "Doodle or scribble",
-          "Listen to ambient sounds",
-          "Lay down for 3 minutes, no phone"
-        ]
-      },
-      {
-        name: "Big Boosts",
-        emoji: "🔥",
-        rewards: [
-          "Take a 20-min walk",
-          "Watch a favorite episode",
-          "Order a special snack",
-          "Start a cozy game or hobby",
-          "Plan a mini-outing",
-          "Try a creative project"
-        ]
+    document.addEventListener('DOMContentLoaded', function() {
+      // --- Categories and Defaults ---
+      const defaultCategories = [
+        {
+          name: "Quick Wins",
+          emoji: "⚡",
+          rewards: [
+            "Play a short song clip",
+            "Open a window, breathe fresh air",
+            "Drink water or a favorite beverage",
+            "Send a meme or emoji to a friend",
+            "Cross off a small to-do",
+            "Stretch for one minute"
+          ]
+        },
+        {
+          name: "Low-Energy Boosts",
+          emoji: "🌙",
+          rewards: [
+            "Watch a calming video",
+            "Wrap up in a blanket",
+            "Sip something warm, do nothing else",
+            "Doodle or scribble",
+            "Listen to ambient sounds",
+            "Lay down for 3 minutes, no phone"
+          ]
+        },
+        {
+          name: "Big Boosts",
+          emoji: "🔥",
+          rewards: [
+            "Take a 20-min walk",
+            "Watch a favorite episode",
+            "Order a special snack",
+            "Start a cozy game or hobby",
+            "Plan a mini-outing",
+            "Try a creative project"
+          ]
+        }
+      ];
+
+      // --- State Management ---
+      let appState = JSON.parse(localStorage.getItem('dopamine-state') || 'null') || {
+        categories: JSON.parse(JSON.stringify(defaultCategories)),
+        checked: {},
+        mood: null,
+        activity: [],
+        dailyStats: {},
+      };
+
+      // --- Mood Tracker ---
+      function renderMood() {
+        document.querySelectorAll('.mood-btn').forEach(btn => {
+          btn.classList.toggle('selected', btn.dataset.mood === appState.mood);
+          btn.onclick = function() {
+            if (appState.mood !== btn.dataset.mood) {
+              appState.mood = btn.dataset.mood;
+              appState.activity.unshift({
+                reward: `Mood set to ${btn.dataset.mood}`,
+                category: 'Mood',
+                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+              });
+              saveAndRender();
+            }
+          }
+        });
       }
-    ];
 
-    // --- State Management ---
-    let appState = JSON.parse(localStorage.getItem('dopamine-state') || 'null') || {
-      categories: JSON.parse(JSON.stringify(defaultCategories)),
-      checked: {},
-      mood: null,
-      activity: [],
-      dailyStats: {}, // { date: count }
-    };
+      // --- Categories and Rewards Rendering ---
+      function renderCategories() {
+        const categoriesDiv = document.getElementById('categories');
+        categoriesDiv.innerHTML = '';
+        appState.categories.forEach((cat, cIdx) => {
+          const catDiv = document.createElement('div');
+          catDiv.className = 'category';
+          const title = document.createElement('div');
+          title.className = 'cat-title';
+          title.innerHTML = `<span>${cat.emoji}</span> ${cat.name}`;
+          catDiv.appendChild(title);
 
-    // --- Mood Tracker ---
-    document.querySelectorAll('.mood-btn').forEach(btn => {
-      btn.onclick = function() {
-        if (appState.mood !== btn.dataset.mood) {
-          appState.mood = btn.dataset.mood;
+          const ul = document.createElement('ul');
+          ul.className = 'rewards-list';
+
+          cat.rewards.forEach((reward, rIdx) => {
+            const key = `cat${cIdx}-rew${rIdx}`;
+            const li = document.createElement('li');
+            li.className = 'reward-item';
+
+            const box = document.createElement('div');
+            box.className = 'reward-checkbox';
+            box.setAttribute('tabindex', 0);
+            box.setAttribute('role', 'checkbox');
+            box.setAttribute('aria-checked', !!appState.checked[key]);
+            box.dataset.cat = cIdx;
+            box.dataset.rew = rIdx;
+            if (appState.checked[key]) box.classList.add('checked');
+            box.innerHTML = `
+              <svg viewBox="0 0 18 18">
+                <polyline points="4 10 8 14 14 5" fill="none"/>
+              </svg>
+            `;
+            box.onclick = () => toggleReward(cIdx, rIdx, reward, cat.name);
+            box.onkeydown = (e) => {
+              if (e.key === " " || e.key === "Enter") toggleReward(cIdx, rIdx, reward, cat.name);
+            };
+
+            const label = document.createElement('span');
+            label.className = 'reward-label';
+            label.textContent = reward;
+            label.onclick = () => toggleReward(cIdx, rIdx, reward, cat.name);
+
+            li.appendChild(box);
+            li.appendChild(label);
+
+            // Remove button for custom rewards only
+            const isCustom = cIdx < defaultCategories.length && rIdx >= defaultCategories[cIdx].rewards.length
+                          || cIdx >= defaultCategories.length;
+            if (isCustom) {
+              const removeBtn = document.createElement('button');
+              removeBtn.textContent = '×';
+              removeBtn.className = 'remove-reward-btn';
+              removeBtn.title = 'Remove this custom reward';
+              removeBtn.onclick = (e) => {
+                e.stopPropagation();
+                appState.categories[cIdx].rewards.splice(rIdx, 1);
+                delete appState.checked[key];
+                saveAndRender();
+              };
+              li.appendChild(removeBtn);
+            }
+            ul.appendChild(li);
+          });
+
+          // Add custom reward input
+          const addDiv = document.createElement('div');
+          addDiv.className = 'add-reward';
+          const input = document.createElement('input');
+          input.type = "text";
+          input.placeholder = "Add a custom reward...";
+          input.maxLength = 40;
+          input.setAttribute('aria-label', 'Custom reward');
+          const btn = document.createElement('button');
+          btn.textContent = "+";
+          btn.onclick = () => {
+            const val = input.value.trim();
+            if (val) {
+              appState.categories[cIdx].rewards.push(val);
+              saveAndRender();
+              input.value = '';
+            }
+          };
+          input.onkeydown = (e) => { if (e.key === "Enter") btn.click(); };
+          addDiv.appendChild(input);
+          addDiv.appendChild(btn);
+          catDiv.appendChild(ul);
+          catDiv.appendChild(addDiv);
+          categoriesDiv.appendChild(catDiv);
+        });
+      }
+
+      // --- Reward Toggle ---
+      function toggleReward(cIdx, rIdx, rewardText, catName) {
+        const key = `cat${cIdx}-rew${rIdx}`;
+        appState.checked[key] = !appState.checked[key];
+        // Activity log
+        if (appState.checked[key]) {
           appState.activity.unshift({
-            reward: `Mood set to ${btn.dataset.mood}`,
-            category: 'Mood',
+            reward: rewardText,
+            category: catName,
             time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
           });
+        } else {
+          const idx = appState.activity.findIndex(
+            entry => entry.reward === rewardText && entry.category === catName
+          );
+          if (idx > -1) appState.activity.splice(idx, 1);
+        }
+        saveAndRender();
+        // Animate bounce
+        setTimeout(() => {
+          const box = document.querySelector(`[data-cat="${cIdx}"][data-rew="${rIdx}"]`);
+          if (box) {
+            box.style.transform = "scale(1.13)";
+            setTimeout(() => box.style.transform = "", 160);
+          }
+        }, 0);
+      }
+
+      // --- Activity Log ---
+      function renderActivityLog() {
+        const logDiv = document.getElementById('activityLog');
+        logDiv.innerHTML = '';
+        appState.activity.slice(0, 7).forEach(entry => {
+          const div = document.createElement('div');
+          div.className = 'log-entry';
+          div.innerHTML = `<span>${entry.category}: ${entry.reward}</span> <span class="log-time">${entry.time}</span>`;
+          logDiv.appendChild(div);
+        });
+        if (!appState.activity.length) {
+          logDiv.innerHTML = `<div class="log-entry" style="color:var(--text-secondary);font-style:italic;">No activity yet</div>`;
+        }
+      }
+
+      // --- Stats, Progress, Mood, and Streak ---
+      function saveDailyCount(count) {
+        const today = new Date().toISOString().slice(0,10);
+        appState.dailyStats[today] = count;
+        // Keep only last 14 days
+        const keys = Object.keys(appState.dailyStats);
+        if (keys.length > 14) {
+          keys.sort();
+          for(let i=0;i<keys.length-14;i++) delete appState.dailyStats[keys[i]];
+        }
+      }
+
+      function getWeeklyAverage() {
+        const days = Object.keys(appState.dailyStats).slice(-7);
+        if (days.length === 0) return 0;
+        const total = days.reduce((sum, d) => sum + (appState.dailyStats[d] || 0), 0);
+        return Math.round(total / days.length);
+      }
+
+      function getStreak() {
+        // Count consecutive days from today backwards with at least 1 reward checked
+        const days = Object.keys(appState.dailyStats).sort().reverse();
+        let streak = 0;
+        let day = new Date();
+        for (let i = 0; i < days.length; i++) {
+          const dayStr = day.toISOString().slice(0,10);
+          if (days[i] === dayStr && appState.dailyStats[dayStr] > 0) {
+            streak++;
+            day.setDate(day.getDate()-1);
+          } else if (days[i] === dayStr) {
+            break;
+          }
+        }
+        return streak;
+      }
+
+      function renderStatsBar() {
+        const todayCount = Object.values(appState.checked).filter(Boolean).length;
+        document.getElementById('stat-today').textContent = todayCount;
+        document.getElementById('stat-week').textContent = getWeeklyAverage();
+        document.getElementById('stat-streak').textContent = getStreak();
+        document.getElementById('stat-mood').textContent = appState.mood || '-';
+        document.getElementById('progress-bar').style.width =
+          appState.categories.reduce((s,cat)=>s+cat.rewards.length,0) === 0
+          ? "0%" :
+          Math.round(todayCount * 100 /
+            appState.categories.reduce((s,cat)=>s+cat.rewards.length,0)
+          )+"%";
+        // Save daily
+        saveDailyCount(todayCount);
+      }
+
+      // --- Celebration Banner ---
+      function renderCelebrate() {
+        const total = Object.values(appState.checked).filter(Boolean).length;
+        const grand = appState.categories.reduce((s, cat) => s + cat.rewards.length, 0);
+        document.getElementById('celebrate').style.display = (total > 0 && total === grand) ? 'block' : 'none';
+      }
+
+      // --- Export/Import Data ---
+      function exportData() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState));
+        const a = document.createElement('a');
+        a.setAttribute("href", dataStr);
+        a.setAttribute("download", "dopamine-tracker-backup.json");
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      }
+      function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const imported = JSON.parse(e.target.result);
+            if (imported.categories && imported.checked && imported.activity) {
+              appState = imported;
+              saveAndRender();
+              alert('Import successful!');
+            } else {
+              alert('Invalid file format.');
+            }
+          } catch {
+            alert('Failed to import file.');
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      // --- Save & Render All ---
+      function saveAndRender() {
+        localStorage.setItem('dopamine-state', JSON.stringify(appState));
+        renderCategories();
+        renderStatsBar();
+        renderActivityLog();
+        renderMood();
+        renderCelebrate();
+      }
+
+      // --- Reset ---
+      window.resetDaily = function() {
+        if (confirm("Reset all progress for today?")) {
+          appState.checked = {};
+          appState.activity = [];
+          appState.mood = null;
           saveAndRender();
         }
       }
-    });
 
-    // --- Categories and Rewards Rendering ---
-    function renderCategories() {
-      const categoriesDiv = document.getElementById('categories');
-      categoriesDiv.innerHTML = '';
-      appState.categories.forEach((cat, cIdx) => {
-        const catDiv = document.createElement('div');
-        catDiv.className = 'category';
-        const title = document.createElement('div');
-        title.className = 'cat-title';
-        title.innerHTML = `<span>${cat.emoji}</span> ${cat.name}`;
-        catDiv.appendChild(title);
+      // Export/Import must be available globally for buttons
+      window.exportData = exportData;
+      window.importData = importData;
 
-        const ul = document.createElement('ul');
-        ul.className = 'rewards-list';
-
-        cat.rewards.forEach((reward, rIdx) => {
-          const key = `cat${cIdx}-rew${rIdx}`;
-          const li = document.createElement('li');
-          li.className = 'reward-item';
-
-          const box = document.createElement('div');
-          box.className = 'reward-checkbox';
-          box.setAttribute('tabindex', 0);
-          box.setAttribute('role', 'checkbox');
-          box.setAttribute('aria-checked', !!appState.checked[key]);
-          box.dataset.cat = cIdx;
-          box.dataset.rew = rIdx;
-          if (appState.checked[key]) box.classList.add('checked');
-          box.innerHTML = `
-            <svg viewBox="0 0 18 18">
-              <polyline points="4 10 8 14 14 5" fill="none"/>
-            </svg>
-          `;
-          box.onclick = () => toggleReward(cIdx, rIdx, reward, cat.name);
-          box.onkeydown = (e) => {
-            if (e.key === " " || e.key === "Enter") toggleReward(cIdx, rIdx, reward, cat.name);
-          };
-
-          const label = document.createElement('span');
-          label.className = 'reward-label';
-          label.textContent = reward;
-          label.onclick = () => toggleReward(cIdx, rIdx, reward, cat.name);
-
-          li.appendChild(box);
-          li.appendChild(label);
-
-          // Remove button for custom rewards only
-          const isCustom = cIdx < defaultCategories.length && rIdx >= defaultCategories[cIdx].rewards.length
-                        || cIdx >= defaultCategories.length;
-          if (isCustom) {
-            const removeBtn = document.createElement('button');
-            removeBtn.textContent = '×';
-            removeBtn.className = 'remove-reward-btn';
-            removeBtn.title = 'Remove this custom reward';
-            removeBtn.onclick = (e) => {
-              e.stopPropagation();
-              appState.categories[cIdx].rewards.splice(rIdx, 1);
-              delete appState.checked[key];
-              saveAndRender();
-            };
-            li.appendChild(removeBtn);
-          }
-          ul.appendChild(li);
-        });
-
-        // Add custom reward input
-        const addDiv = document.createElement('div');
-        addDiv.className = 'add-reward';
-        const input = document.createElement('input');
-        input.type = "text";
-        input.placeholder = "Add a custom reward...";
-        input.maxLength = 40;
-        input.setAttribute('aria-label', 'Custom reward');
-        const btn = document.createElement('button');
-        btn.textContent = "+";
-        btn.onclick = () => {
-          const val = input.value.trim();
-          if (val) {
-            appState.categories[cIdx].rewards.push(val);
-            saveAndRender();
-            input.value = '';
-          }
-        };
-        input.onkeydown = (e) => { if (e.key === "Enter") btn.click(); };
-        addDiv.appendChild(input);
-        addDiv.appendChild(btn);
-        catDiv.appendChild(ul);
-        catDiv.appendChild(addDiv);
-        categoriesDiv.appendChild(catDiv);
-      });
-    }
-
-    // --- Reward Toggle ---
-    function toggleReward(cIdx, rIdx, rewardText, catName) {
-      const key = `cat${cIdx}-rew${rIdx}`;
-      appState.checked[key] = !appState.checked[key];
-      // Activity log
-      if (appState.checked[key]) {
-        appState.activity.unshift({
-          reward: rewardText,
-          category: catName,
-          time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-        });
-      } else {
-        const idx = appState.activity.findIndex(
-          entry => entry.reward === rewardText && entry.category === catName
-        );
-        if (idx > -1) appState.activity.splice(idx, 1);
-      }
+      // --- Initial Render ---
       saveAndRender();
-      // Animate bounce
-      setTimeout(() => {
-        const box = document.querySelector(`[data-cat="${cIdx}"][data-rew="${rIdx}"]`);
-        if (box) {
-          box.style.transform = "scale(1.13)";
-          setTimeout(() => box.style.transform = "", 160);
-        }
-      }, 0);
-    }
-
-    // --- Activity Log ---
-    function renderActivityLog() {
-      const logDiv = document.getElementById('activityLog');
-      logDiv.innerHTML = '';
-      appState.activity.slice(0, 7).forEach(entry => {
-        const div = document.createElement('div');
-        div.className = 'log-entry';
-        div.innerHTML = `<span>${entry.category}: ${entry.reward}</span> <span class="log-time">${entry.time}</span>`;
-        logDiv.appendChild(div);
-      });
-      if (!appState.activity.length) {
-        logDiv.innerHTML = `<div class="log-entry" style="color:var(--text-secondary);font-style:italic;">No activity yet</div>`;
-      }
-    }
-
-    // --- Stats, Progress, Mood, and Streak ---
-    function saveDailyCount(count) {
-      const today = new Date().toISOString().slice(0,10);
-      appState.dailyStats[today] = count;
-      // Keep only last 14 days
-      const keys = Object.keys(appState.dailyStats);
-      if (keys.length > 14) {
-        keys.sort();
-        for(let i=0;i<keys.length-14;i++) delete appState.dailyStats[keys[i]];
-      }
-    }
-
-    function getWeeklyAverage() {
-      const days = Object.keys(appState.dailyStats).slice(-7);
-      if (days.length === 0) return 0;
-      const total = days.reduce((sum, d) => sum + (appState.dailyStats[d] || 0), 0);
-      return Math.round(total / days.length);
-    }
-
-    function getStreak() {
-      // Count consecutive days from today backwards with at least 1 reward checked
-      const days = Object.keys(appState.dailyStats).sort().reverse();
-      let streak = 0;
-      let day = new Date();
-      for (let i = 0; i < days.length; i++) {
-        const dayStr = day.toISOString().slice(0,10);
-        if (days[i] === dayStr && appState.dailyStats[dayStr] > 0) {
-          streak++;
-          day.setDate(day.getDate()-1);
-        } else if (days[i] === dayStr) {
-          break;
-        }
-      }
-      return streak;
-    }
-
-    function renderStatsBar() {
-      const todayCount = Object.values(appState.checked).filter(Boolean).length;
-      document.getElementById('stat-today').textContent = todayCount;
-      document.getElementById('stat-week').textContent = getWeeklyAverage();
-      document.getElementById('stat-streak').textContent = getStreak();
-      document.getElementById('stat-mood').textContent = appState.mood || '-';
-      document.getElementById('progress-bar').style.width =
-        appState.categories.reduce((s,cat)=>s+cat.rewards.length,0) === 0
-        ? "0%" :
-        Math.round(todayCount * 100 /
-          appState.categories.reduce((s,cat)=>s+cat.rewards.length,0)
-        )+"%";
-      // Save daily
-      saveDailyCount(todayCount);
-    }
-
-    // --- Mood Highlight ---
-    function renderMood() {
-      document.querySelectorAll('.mood-btn').forEach(btn => {
-        btn.classList.toggle('selected', btn.dataset.mood === appState.mood);
-      });
-    }
-
-    // --- Celebration Banner ---
-    function renderCelebrate() {
-      const total = Object.values(appState.checked).filter(Boolean).length;
-      const grand = appState.categories.reduce((s, cat) => s + cat.rewards.length, 0);
-      document.getElementById('celebrate').style.display = (total > 0 && total === grand) ? 'block' : 'none';
-    }
-
-    // --- Export/Import Data ---
-    function exportData() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState));
-      const a = document.createElement('a');
-      a.setAttribute("href", dataStr);
-      a.setAttribute("download", "dopamine-tracker-backup.json");
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    }
-    function importData(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const imported = JSON.parse(e.target.result);
-          if (imported.categories && imported.checked && imported.activity) {
-            appState = imported;
-            saveAndRender();
-            alert('Import successful!');
-          } else {
-            alert('Invalid file format.');
-          }
-        } catch {
-          alert('Failed to import file.');
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    // --- Save & Render All ---
-    function saveAndRender() {
-      localStorage.setItem('dopamine-state', JSON.stringify(appState));
-      renderCategories();
-      renderStatsBar();
-      renderActivityLog();
-      renderMood();
-      renderCelebrate();
-    }
-
-    // --- Reset ---
-    function resetDaily() {
-      if (confirm("Reset all progress for today?")) {
-        appState.checked = {};
-        appState.activity = [];
-        appState.mood = null;
-        saveAndRender();
-      }
-    }
-
-    // --- Initial Render ---
-    saveAndRender();
+    });
   </script>
 </body>
 </html>
