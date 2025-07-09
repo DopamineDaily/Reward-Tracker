@@ -6,51 +6,86 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     :root {
-      --primary: #6a9cfe;
+      --primary: #7c53ff;
       --accent: #ffe066;
-      --bg: #fff;
-      --text: #222;
-      --border: #e0e0e0;
-      --radius: 14px;
+      --bg: #f6f3ff;
+      --glass: rgba(255,255,255,0.85);
+      --text: #2a2344;
+      --border: #e1dbf8;
+      --radius: 18px;
+      --shadow: 0 8px 32px rgba(124,83,255,0.12), 0 1.5px 5px rgba(124,83,255,0.09);
     }
     body {
       font-family: system-ui, sans-serif;
       margin: 0; padding: 0;
-      background: var(--bg);
+      background: linear-gradient(120deg, #f6f3ff 0%, #c3cfe2 100%);
       color: var(--text);
       min-height: 100vh;
       box-sizing: border-box;
+      transition: background 0.5s;
     }
     .container {
-      max-width: 500px;
-      margin: 24px auto;
-      background: #f9f9f9;
+      max-width: 540px;
+      margin: 34px auto 0 auto;
+      background: var(--glass);
       border-radius: var(--radius);
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-      padding: 24px 16px 16px 16px;
+      box-shadow: var(--shadow);
+      padding: 28px 18px 18px 18px;
+      backdrop-filter: blur(2.5px);
+      position: relative;
     }
     h1 {
       text-align: center;
-      margin: 0 0 12px 0;
-      font-size: 1.65rem;
+      margin: 0 0 16px 0;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(90deg, #7c53ff 30%, #ffe066 80%);
+      background-clip: text;
+      color: transparent;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .celebrate {
+      display: none;
+      position: absolute;
+      top: -30px; left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(90deg, #ffe066 50%, #fffbe6 100%);
+      color: #7c53ff;
+      border-radius: 24px;
+      padding: 9px 32px;
       font-weight: 700;
+      font-size: 1.13rem;
+      letter-spacing: 0.03em;
+      box-shadow: 0 4px 12px #ffe06660;
+      z-index: 2;
+      animation: pop-celebrate 0.7s;
+    }
+    @keyframes pop-celebrate {
+      0% { transform: translateX(-50%) scale(0.4);}
+      80% { transform: translateX(-50%) scale(1.08);}
+      100% { transform: translateX(-50%) scale(1);}
     }
     .categories {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 19px;
     }
     .category {
-      background: #fff;
+      background: var(--glass);
       border-radius: var(--radius);
-      padding: 12px;
+      padding: 15px 12px 11px 12px;
       border: 1px solid var(--border);
+      box-shadow: 0 2px 12px #7c53ff08;
+      margin-bottom: 3px;
     }
     .cat-title {
-      margin: 0 0 8px 0;
-      font-size: 1.1rem;
-      font-weight: 600;
+      margin: 0 0 10px 0;
+      font-size: 1.13rem;
+      font-weight: 700;
       color: var(--primary);
+      letter-spacing: 0.01em;
     }
     .rewards-list {
       list-style: none;
@@ -59,102 +94,152 @@
     .reward-item {
       display: flex;
       align-items: center;
-      margin-bottom: 6px;
-      gap: 8px;
+      margin-bottom: 7px;
+      gap: 10px;
     }
     .reward-box {
-      width: 22px; height: 22px;
+      width: 24px; height: 24px;
       border: 2px solid var(--primary);
-      border-radius: 6px;
+      border-radius: 8px;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       background: #fafcff;
-      transition: background 0.2s, border-color 0.2s;
+      transition: background 0.22s, border-color 0.22s, box-shadow 0.18s, transform 0.18s;
+      box-shadow: 0 1px 5px #7c53ff15;
+      font-size: 1.18rem;
+      user-select: none;
     }
+    .reward-box:active { transform: scale(1.16); }
     .reward-box.checked {
-      background: var(--accent);
-      border-color: var(--accent);
+      background: linear-gradient(90deg, #ffe066 60%, #fffbe6 100%);
+      border-color: #ffe066;
+      box-shadow: 0 0 7px #ffe0668c;
+      animation: reward-bounce 0.18s;
+      color: #7c53ff;
+    }
+    @keyframes reward-bounce {
+      0% { transform: scale(0.7);}
+      60% { transform: scale(1.2);}
+      100% { transform: scale(1);}
     }
     .reward-label {
       user-select: none;
       flex: 1;
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 1.04rem;
+      letter-spacing: 0.01em;
+      transition: color 0.18s;
+    }
+    .reward-box.checked + .reward-label {
+      color: #7c53ff;
+      font-weight: 600;
+      text-decoration: line-through;
+      opacity: 0.75;
     }
     .add-reward {
       display: flex;
       gap: 8px;
-      margin-top: 7px;
+      margin-top: 8px;
     }
     .add-reward input {
       flex: 1;
-      padding: 6px;
-      border-radius: 6px;
+      padding: 7px;
+      border-radius: 7px;
       border: 1px solid var(--border);
-      font-size: 1rem;
+      font-size: 1.01rem;
+      background: #f8f7ff;
+      outline: none;
     }
     .add-reward button {
       background: var(--primary);
       color: #fff;
       border: none;
-      border-radius: 6px;
-      padding: 6px 14px;
-      font-size: 1rem;
+      border-radius: 7px;
+      padding: 7px 15px;
+      font-size: 1.02rem;
       cursor: pointer;
-      transition: background 0.2s;
+      font-weight: 600;
+      transition: background 0.16s, transform 0.1s;
     }
-    .add-reward button:hover { background: #5176c6; }
+    .add-reward button:active { transform: scale(1.12);}
+    .add-reward button:hover { background: #a18aff; }
     .stats {
-      margin: 16px 0 10px 0;
-      background: #fff;
+      margin: 19px 0 13px 0;
+      background: var(--glass);
       border-radius: var(--radius);
       border: 1px solid var(--border);
-      padding: 10px 12px;
+      padding: 11px 14px;
       display: flex;
       justify-content: space-between;
-      font-size: 1rem;
+      font-size: 1.07rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      box-shadow: 0 2px 12px #7c53ff0a;
     }
     .progress-bar {
       width: 100%;
       background: #e0e7ff;
-      border-radius: 8px;
+      border-radius: 10px;
       overflow: hidden;
-      margin-top: 10px;
-      height: 14px;
+      margin-top: 11px;
+      height: 16px;
+      box-shadow: 0 0 12px #ffe06650;
     }
     .progress {
-      background: var(--primary);
+      background: linear-gradient(90deg, #ffe066 60%, #7c53ff 100%);
       height: 100%;
-      transition: width 0.3s;
+      border-radius: 10px;
+      transition: width 0.38s cubic-bezier(.4,2,.6,1);
+      box-shadow: 0 0 10px #ffe06660;
     }
     .mood-section {
-      margin: 18px 0 8px 0;
+      margin: 24px 0 11px 0;
       text-align: center;
     }
+    .mood-prompt {
+      margin-bottom:4px;
+      font-weight:600;
+      color: #7c53ff;
+    }
     .mood-btn {
-      background: #edf2ff;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 1.3rem;
-      margin: 0 4px;
-      padding: 4px 8px;
+      background: #edeaff;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 1.45rem;
+      margin: 0 7px;
+      padding: 5px 13px;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.21s, transform 0.14s, border 0.18s;
+      outline: none;
+      box-shadow: 0 1px 7px #7c53ff12;
+      color: #7c53ff;
     }
     .mood-btn.selected {
-      background: var(--accent);
-      border-color: var(--primary);
+      background: linear-gradient(90deg, #ffe066 80%, #fffbe6 100%);
+      border-color: #7c53ff;
+      color: #705e00;
+      transform: scale(1.19);
+      box-shadow: 0 0 8px #ffe06664;
+    }
+    .mood-btn:active { transform: scale(1.09);}
+    .footer-note {
+      text-align:center;
+      font-size:0.98rem;
+      color:#7c53ff99;
+      margin-top:15px;
+      letter-spacing: 0.01em;
     }
     @media (max-width: 600px) {
-      .container { max-width: 97vw; padding: 12px 4px; }
-      h1 { font-size: 1.25rem; }
-      .cat-title { font-size: 1rem; }
+      .container { max-width: 98vw; padding: 14px 2px; }
+      h1 { font-size: 1.3rem; }
+      .cat-title { font-size: 1.01rem; }
       .stats { font-size: 0.97rem; }
     }
   </style>
 </head>
 <body>
   <div class="container" role="main">
+    <div class="celebrate" id="celebrate-banner">🎉 All rewards complete! 🎉</div>
     <h1>Dopamine Rewards Tracker</h1>
     <div class="stats" aria-live="polite">
       <span id="done-count">0 done</span>
@@ -165,33 +250,24 @@
     </div>
     <div class="categories" id="categories"></div>
     <div class="mood-section">
-      <div style="margin-bottom:4px;font-weight:500;">How's your mood?</div>
+      <div class="mood-prompt">How's your mood?</div>
       <button class="mood-btn" data-mood="😊" aria-label="Happy">😊</button>
       <button class="mood-btn" data-mood="😐" aria-label="Neutral">😐</button>
       <button class="mood-btn" data-mood="😞" aria-label="Sad">😞</button>
     </div>
-    <div style="text-align:center; font-size:0.93rem; color:#888; margin-top:12px;">
+    <div class="footer-note">
       Progress auto-saves · Works in Notion
     </div>
   </div>
   <script>
-    // --------- Default Categories & Rewards ----------
+    // Default Categories & Rewards
     const defaultCategories = [
-      {
-        name: "Quick Wins",
-        rewards: ["Drink water", "Stretch", "Deep breath", "Smile"]
-      },
-      {
-        name: "Growth",
-        rewards: ["Read a page", "Learn something new", "Reflect for 1 min"]
-      },
-      {
-        name: "Movement",
-        rewards: ["Walk 5 min", "Do 5 pushups", "Dance to a song"]
-      }
+      { name: "Quick Wins", rewards: ["💧 Drink water", "🧘 Stretch", "🌬️ Deep breath", "😄 Smile"] },
+      { name: "Growth", rewards: ["📖 Read a page", "🧠 Learn something", "📝 Reflect 1 min"] },
+      { name: "Movement", rewards: ["🚶 Walk 5 min", "💪 5 pushups", "💃 Dance to a song"] }
     ];
 
-    // --------- Persistence Layer ----------
+    // Persistence Layer
     function saveState(state) {
       localStorage.setItem('ddrtracker-state', JSON.stringify(state));
     }
@@ -201,14 +277,14 @@
       try { return JSON.parse(s); } catch { return null; }
     }
 
-    // --------- App State ----------
+    // App State
     let appState = loadState() || {
       categories: JSON.parse(JSON.stringify(defaultCategories)),
-      checked: {}, // { "cat0-rew0": true }
+      checked: {},
       mood: null
     };
 
-    // --------- DOM Generation ----------
+    // DOM Generation
     const categoriesDiv = document.getElementById('categories');
     function renderCategories() {
       categoriesDiv.innerHTML = '';
@@ -263,7 +339,7 @@
         input.type = 'text';
         input.placeholder = 'Custom reward...';
         input.setAttribute('aria-label', 'Custom reward');
-        input.maxLength = 40;
+        input.maxLength = 44;
 
         const btn = document.createElement('button');
         btn.textContent = '+';
@@ -293,19 +369,26 @@
       const key = `cat${cIdx}-rew${rIdx}`;
       appState.checked[key] = !appState.checked[key];
       saveAndRender();
-      // Confetti effect on all done
-      if (getDoneCount() === getTotalCount()) confetti();
+      // Bounce animation
+      setTimeout(() => {
+        const box = document.querySelector(`[data-cat="${cIdx}"][data-rew="${rIdx}"]`);
+        if(box) {
+          box.style.transform = "scale(1.22)";
+          setTimeout(()=>box.style.transform="", 160);
+        }
+      }, 0);
+      if (getDoneCount() === getTotalCount()) showCelebrate();
+      else hideCelebrate();
     }
 
     function getDoneCount() {
       return Object.values(appState.checked).filter(Boolean).length;
     }
     function getTotalCount() {
-      return appState.categories.reduce((sum, cat, cIdx) =>
-        sum + cat.rewards.length, 0);
+      return appState.categories.reduce((sum, cat) => sum + cat.rewards.length, 0);
     }
 
-    // --------- Stats & Progress Bar ----------
+    // Stats & Progress Bar
     function renderStats() {
       document.getElementById('done-count').textContent = `${getDoneCount()} done`;
       document.getElementById('total-count').textContent = `${getTotalCount()} total`;
@@ -313,7 +396,17 @@
         (getTotalCount() === 0 ? 0 : Math.round(getDoneCount()*100/getTotalCount())) + '%';
     }
 
-    // --------- Mood Section ----------
+    // Celebrate Banner
+    function showCelebrate() {
+      const banner = document.getElementById('celebrate-banner');
+      banner.style.display = 'block';
+    }
+    function hideCelebrate() {
+      const banner = document.getElementById('celebrate-banner');
+      banner.style.display = 'none';
+    }
+
+    // Mood Section
     document.querySelectorAll('.mood-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         appState.mood = btn.dataset.mood;
@@ -326,34 +419,18 @@
       });
     }
 
-    // --------- Save & Render All ----------
+    // Save & Render All
     function saveAndRender() {
       saveState(appState);
       renderCategories();
       renderStats();
       renderMood();
+      // Show/hide celebration banner
+      if (getDoneCount() === getTotalCount() && getTotalCount() > 0) showCelebrate();
+      else hideCelebrate();
     }
 
-    // --------- Fun: Confetti (simple dots) ----------
-    function confetti() {
-      for (let i = 0; i < 22; ++i) {
-        let el = document.createElement('div');
-        el.style.position = 'fixed';
-        el.style.left = Math.random()*100+'vw';
-        el.style.top = '-6vh';
-        el.style.fontSize = '1.4rem';
-        el.style.opacity = '0.95';
-        el.textContent = ['🎉','✨','🥳','🌟'][Math.floor(Math.random()*4)];
-        document.body.appendChild(el);
-        setTimeout(() => {
-          el.style.transition = 'top 1.5s ease';
-          el.style.top = (70+Math.random()*20)+'vh';
-        }, 1);
-        setTimeout(() => { el.remove(); }, 1800);
-      }
-    }
-
-    // --------- Init ---------
+    // Init
     saveAndRender();
   </script>
 </body>
