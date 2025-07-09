@@ -6,241 +6,251 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     :root {
-      --primary: #7c53ff;
-      --accent: #ffe066;
-      --bg: #f6f3ff;
-      --glass: rgba(255,255,255,0.85);
-      --text: #2a2344;
-      --border: #e1dbf8;
-      --radius: 18px;
-      --shadow: 0 8px 32px rgba(124,83,255,0.12), 0 1.5px 5px rgba(124,83,255,0.09);
+      --accent: #4a90e2;
+      --accent-light: #eaf4fb;
+      --border: #e0e2e6;
+      --shadow: 0 2px 16px rgba(44,62,80,0.06);
+      --radius: 16px;
+      --bg: #f7f7f8;
+      --surface: #fff;
+      --text: #23272f;
+      --text-secondary: #737a86;
+      --checked: #4a90e2;
+      --checked-bg: #eaf4fb;
+      --checked-shadow: 0 0 0 3px #eaf4fb;
+      --transition: 0.17s cubic-bezier(.4,2,.6,1);
     }
-    body {
-      font-family: system-ui, sans-serif;
-      margin: 0; padding: 0;
-      background: linear-gradient(120deg, #f6f3ff 0%, #c3cfe2 100%);
-      color: var(--text);
-      min-height: 100vh;
-      box-sizing: border-box;
-      transition: background 0.5s;
-    }
+    html, body { background: var(--bg); margin: 0; padding: 0; font-family: system-ui, sans-serif; color: var(--text);}
     .container {
-      max-width: 540px;
-      margin: 34px auto 0 auto;
-      background: var(--glass);
+      max-width: 480px;
+      margin: 32px auto;
+      background: var(--surface);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 28px 18px 18px 18px;
-      backdrop-filter: blur(2.5px);
-      position: relative;
+      padding: 30px 20px 20px 20px;
     }
     h1 {
       text-align: center;
-      margin: 0 0 16px 0;
       font-size: 2rem;
       font-weight: 800;
       letter-spacing: -1px;
-      background: linear-gradient(90deg, #7c53ff 30%, #ffe066 80%);
-      background-clip: text;
-      color: transparent;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--text);
+      margin-bottom: 5px;
     }
-    .celebrate {
-      display: none;
-      position: absolute;
-      top: -30px; left: 50%;
-      transform: translateX(-50%);
-      background: linear-gradient(90deg, #ffe066 50%, #fffbe6 100%);
-      color: #7c53ff;
-      border-radius: 24px;
-      padding: 9px 32px;
-      font-weight: 700;
-      font-size: 1.13rem;
-      letter-spacing: 0.03em;
-      box-shadow: 0 4px 12px #ffe06660;
-      z-index: 2;
-      animation: pop-celebrate 0.7s;
+    .subtitle {
+      text-align: center;
+      color: var(--text-secondary);
+      margin-bottom: 26px;
+      font-size: 1.05rem;
     }
-    @keyframes pop-celebrate {
-      0% { transform: translateX(-50%) scale(0.4);}
-      80% { transform: translateX(-50%) scale(1.08);}
-      100% { transform: translateX(-50%) scale(1);}
-    }
-    .categories {
+    .stats {
       display: flex;
-      flex-direction: column;
-      gap: 19px;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--accent-light);
+      border-radius: var(--radius);
+      padding: 13px 16px;
+      margin-bottom: 18px;
+      font-size: 1.07rem;
+      box-shadow: 0 1.5px 6px #4a90e208;
+      font-weight: 500;
+    }
+    .progress-bar {
+      width: 100%;
+      background: #e7e9ec;
+      border-radius: 8px;
+      overflow: hidden;
+      height: 12px;
+      margin-bottom: 20px;
+      margin-top: 5px;
+    }
+    .progress {
+      background: linear-gradient(90deg, #4a90e2 80%, #8ec9f8 100%);
+      height: 100%;
+      border-radius: 8px;
+      transition: width var(--transition);
     }
     .category {
-      background: var(--glass);
-      border-radius: var(--radius);
-      padding: 15px 12px 11px 12px;
-      border: 1px solid var(--border);
-      box-shadow: 0 2px 12px #7c53ff08;
-      margin-bottom: 3px;
+      margin-bottom: 30px;
     }
     .cat-title {
-      margin: 0 0 10px 0;
-      font-size: 1.13rem;
+      font-size: 1.12rem;
       font-weight: 700;
-      color: var(--primary);
+      margin-bottom: 12px;
+      color: var(--text);
       letter-spacing: 0.01em;
+      display: flex;
+      align-items: center;
+      gap: 7px;
     }
-    .rewards-list {
+    ul.rewards-list {
       list-style: none;
       padding: 0; margin: 0;
     }
     .reward-item {
       display: flex;
       align-items: center;
-      margin-bottom: 7px;
-      gap: 10px;
+      gap: 13px;
+      padding: 10px 0 10px 0;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.13s;
     }
-    .reward-box {
-      width: 24px; height: 24px;
-      border: 2px solid var(--primary);
-      border-radius: 8px;
+    .reward-item:last-child { border-bottom: none; }
+    .reward-checkbox {
+      width: 22px; height: 22px;
+      border-radius: 7px;
+      border: 2px solid var(--border);
+      background: #fafafc;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
-      background: #fafcff;
-      transition: background 0.22s, border-color 0.22s, box-shadow 0.18s, transform 0.18s;
-      box-shadow: 0 1px 5px #7c53ff15;
-      font-size: 1.18rem;
-      user-select: none;
+      transition: border-color var(--transition), background var(--transition), box-shadow var(--transition), transform 0.11s;
+      box-shadow: 0 0.5px 3px #4a90e20c;
+      position: relative;
     }
-    .reward-box:active { transform: scale(1.16); }
-    .reward-box.checked {
-      background: linear-gradient(90deg, #ffe066 60%, #fffbe6 100%);
-      border-color: #ffe066;
-      box-shadow: 0 0 7px #ffe0668c;
+    .reward-checkbox.checked {
+      border-color: var(--checked);
+      background: var(--checked-bg);
+      box-shadow: var(--checked-shadow);
       animation: reward-bounce 0.18s;
-      color: #7c53ff;
+      color: var(--checked);
     }
     @keyframes reward-bounce {
       0% { transform: scale(0.7);}
-      60% { transform: scale(1.2);}
+      70% { transform: scale(1.16);}
       100% { transform: scale(1);}
     }
+    .reward-checkbox svg {
+      display: none;
+      width: 15px; height: 15px;
+      stroke: var(--checked);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .reward-checkbox.checked svg { display: block; }
     .reward-label {
-      user-select: none;
       flex: 1;
+      font-size: 1rem;
+      color: var(--text);
+      user-select: none;
       cursor: pointer;
-      font-size: 1.04rem;
-      letter-spacing: 0.01em;
       transition: color 0.18s;
     }
-    .reward-box.checked + .reward-label {
-      color: #7c53ff;
-      font-weight: 600;
+    .reward-checkbox.checked + .reward-label {
+      color: var(--checked);
       text-decoration: line-through;
-      opacity: 0.75;
+      opacity: 0.7;
     }
     .add-reward {
       display: flex;
       gap: 8px;
-      margin-top: 8px;
+      margin-top: 10px;
     }
     .add-reward input {
       flex: 1;
       padding: 7px;
       border-radius: 7px;
-      border: 1px solid var(--border);
-      font-size: 1.01rem;
-      background: #f8f7ff;
+      border: 1.5px solid var(--border);
+      font-size: 1rem;
+      background: #fafafc;
       outline: none;
+      transition: border-color 0.13s;
     }
+    .add-reward input:focus { border-color: var(--accent);}
     .add-reward button {
-      background: var(--primary);
+      background: var(--accent);
       color: #fff;
       border: none;
       border-radius: 7px;
       padding: 7px 15px;
-      font-size: 1.02rem;
+      font-size: 1rem;
       cursor: pointer;
       font-weight: 600;
-      transition: background 0.16s, transform 0.1s;
+      transition: background 0.14s, transform 0.1s;
     }
-    .add-reward button:active { transform: scale(1.12);}
-    .add-reward button:hover { background: #a18aff; }
-    .stats {
-      margin: 19px 0 13px 0;
-      background: var(--glass);
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      padding: 11px 14px;
-      display: flex;
-      justify-content: space-between;
-      font-size: 1.07rem;
-      font-weight: 600;
-      letter-spacing: 0.01em;
-      box-shadow: 0 2px 12px #7c53ff0a;
-    }
-    .progress-bar {
-      width: 100%;
-      background: #e0e7ff;
-      border-radius: 10px;
-      overflow: hidden;
-      margin-top: 11px;
-      height: 16px;
-      box-shadow: 0 0 12px #ffe06650;
-    }
-    .progress {
-      background: linear-gradient(90deg, #ffe066 60%, #7c53ff 100%);
-      height: 100%;
-      border-radius: 10px;
-      transition: width 0.38s cubic-bezier(.4,2,.6,1);
-      box-shadow: 0 0 10px #ffe06660;
-    }
+    .add-reward button:active { transform: scale(1.09);}
+    .add-reward button:hover { background: #357abd; }
     .mood-section {
-      margin: 24px 0 11px 0;
+      margin: 25px 0 10px 0;
       text-align: center;
     }
     .mood-prompt {
-      margin-bottom:4px;
-      font-weight:600;
-      color: #7c53ff;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 7px;
     }
     .mood-btn {
-      background: #edeaff;
+      background: #f6fafd;
       border: 1.5px solid var(--border);
-      border-radius: 10px;
-      font-size: 1.45rem;
-      margin: 0 7px;
-      padding: 5px 13px;
+      border-radius: 50%;
+      font-size: 1.19rem;
+      margin: 0 8px;
+      padding: 7px 0;
+      width: 38px; height: 38px;
       cursor: pointer;
-      transition: background 0.21s, transform 0.14s, border 0.18s;
+      transition: background 0.16s, border 0.16s, transform 0.13s;
+      color: var(--text-secondary);
       outline: none;
-      box-shadow: 0 1px 7px #7c53ff12;
-      color: #7c53ff;
+      box-shadow: 0 1px 4px #4a90e20a;
     }
     .mood-btn.selected {
-      background: linear-gradient(90deg, #ffe066 80%, #fffbe6 100%);
-      border-color: #7c53ff;
-      color: #705e00;
-      transform: scale(1.19);
-      box-shadow: 0 0 8px #ffe06664;
+      background: var(--checked-bg);
+      border-color: var(--checked);
+      color: var(--checked);
+      transform: scale(1.13);
     }
-    .mood-btn:active { transform: scale(1.09);}
-    .footer-note {
-      text-align:center;
-      font-size:0.98rem;
-      color:#7c53ff99;
-      margin-top:15px;
-      letter-spacing: 0.01em;
+    .activity-log {
+      margin: 32px 0 0 0;
     }
+    .activity-log-title {
+      font-weight: 700;
+      font-size: 1.07rem;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+    .log-entry {
+      background: #f9fafb;
+      border-radius: 7px;
+      padding: 10px 13px;
+      margin-bottom: 10px;
+      border-left: 3.5px solid var(--accent);
+      font-size: 0.97rem;
+      color: var(--text);
+      box-shadow: 0 1px 4px #4a90e20d;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .log-time {
+      color: var(--text-secondary);
+      font-size: 0.86em;
+    }
+    .reset-btn {
+      margin: 28px 0 0 0;
+      width: 100%;
+      background: #e0e2e6;
+      color: #b03c3c;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 0;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.14s;
+    }
+    .reset-btn:hover { background: #f5eaea; }
     @media (max-width: 600px) {
-      .container { max-width: 98vw; padding: 14px 2px; }
-      h1 { font-size: 1.3rem; }
-      .cat-title { font-size: 1.01rem; }
-      .stats { font-size: 0.97rem; }
+      .container { max-width: 99vw; padding: 13px 2px;}
+      h1 { font-size: 1.25rem;}
+      .stats { font-size: 0.97rem;}
+      .cat-title { font-size: 1rem;}
     }
   </style>
 </head>
 <body>
-  <div class="container" role="main">
-    <div class="celebrate" id="celebrate-banner">🎉 All rewards complete! 🎉</div>
+  <div class="container">
     <h1>Dopamine Rewards Tracker</h1>
+    <div class="subtitle">Build momentum with small rewards and positive habits.</div>
     <div class="stats" aria-live="polite">
       <span id="done-count">0 done</span>
       <span id="total-count">0 total</span>
@@ -248,45 +258,73 @@
     <div class="progress-bar" aria-label="Progress">
       <div class="progress" id="progress-bar" style="width:0%"></div>
     </div>
-    <div class="categories" id="categories"></div>
+    <div id="categories"></div>
     <div class="mood-section">
       <div class="mood-prompt">How's your mood?</div>
-      <button class="mood-btn" data-mood="😊" aria-label="Happy">😊</button>
-      <button class="mood-btn" data-mood="😐" aria-label="Neutral">😐</button>
-      <button class="mood-btn" data-mood="😞" aria-label="Sad">😞</button>
+      <button class="mood-btn" data-mood="😊" aria-label="Great">😊</button>
+      <button class="mood-btn" data-mood="🙂" aria-label="Good">🙂</button>
+      <button class="mood-btn" data-mood="😐" aria-label="Meh">😐</button>
+      <button class="mood-btn" data-mood="😕" aria-label="Low">😕</button>
+      <button class="mood-btn" data-mood="😞" aria-label="Rough">😞</button>
     </div>
-    <div class="footer-note">
-      Progress auto-saves · Works in Notion
+    <div class="activity-log">
+      <div class="activity-log-title">Recent Activity</div>
+      <div id="activityLog"></div>
+      <button class="reset-btn" onclick="resetDaily()">Reset Today's Progress</button>
     </div>
   </div>
   <script>
-    // Default Categories & Rewards
+    // Premium, neutral rewards
     const defaultCategories = [
-      { name: "Quick Wins", rewards: ["💧 Drink water", "🧘 Stretch", "🌬️ Deep breath", "😄 Smile"] },
-      { name: "Growth", rewards: ["📖 Read a page", "🧠 Learn something", "📝 Reflect 1 min"] },
-      { name: "Movement", rewards: ["🚶 Walk 5 min", "💪 5 pushups", "💃 Dance to a song"] }
+      {
+        name: "Quick Wins",
+        emoji: "⚡",
+        rewards: [
+          "Play a 30-second song clip",
+          "Open a window, breathe fresh air",
+          "Drink water or a favorite beverage",
+          "Send a meme or emoji to a friend",
+          "Cross off a small to-do",
+          "Stretch for one minute"
+        ]
+      },
+      {
+        name: "Low-Energy Boosts",
+        emoji: "🌙",
+        rewards: [
+          "Watch a calming video",
+          "Wrap up in a blanket",
+          "Sip something warm, do nothing else",
+          "Doodle or scribble",
+          "Listen to ambient sounds",
+          "Lay down for 3 minutes, no phone"
+        ]
+      },
+      {
+        name: "Big Boosts",
+        emoji: "🔥",
+        rewards: [
+          "Take a 20-min walk",
+          "Watch a favorite episode",
+          "Order a special snack",
+          "Start a cozy game or hobby",
+          "Plan a mini-outing",
+          "Try a creative project"
+        ]
+      }
     ];
 
-    // Persistence Layer
-    function saveState(state) {
-      localStorage.setItem('ddrtracker-state', JSON.stringify(state));
-    }
-    function loadState() {
-      const s = localStorage.getItem('ddrtracker-state');
-      if (!s) return null;
-      try { return JSON.parse(s); } catch { return null; }
-    }
-
-    // App State
-    let appState = loadState() || {
+    // State
+    let appState = JSON.parse(localStorage.getItem('dopamine-state') || 'null') || {
       categories: JSON.parse(JSON.stringify(defaultCategories)),
       checked: {},
-      mood: null
+      mood: null,
+      activity: []
     };
 
-    // DOM Generation
-    const categoriesDiv = document.getElementById('categories');
+    // Render categories and rewards
     function renderCategories() {
+      const categoriesDiv = document.getElementById('categories');
       categoriesDiv.innerHTML = '';
       appState.categories.forEach((cat, cIdx) => {
         const catDiv = document.createElement('div');
@@ -294,143 +332,164 @@
 
         const title = document.createElement('div');
         title.className = 'cat-title';
-        title.textContent = cat.name;
+        title.innerHTML = `<span>${cat.emoji}</span> ${cat.name}`;
         catDiv.appendChild(title);
 
-        // Rewards
         const ul = document.createElement('ul');
         ul.className = 'rewards-list';
-        cat.rewards.forEach((r, rIdx) => {
+
+        cat.rewards.forEach((reward, rIdx) => {
+          const key = `cat${cIdx}-rew${rIdx}`;
           const li = document.createElement('li');
           li.className = 'reward-item';
 
           const box = document.createElement('div');
-          box.className = 'reward-box';
+          box.className = 'reward-checkbox';
           box.setAttribute('tabindex', 0);
           box.setAttribute('role', 'checkbox');
-          box.setAttribute('aria-checked', !!appState.checked[`cat${cIdx}-rew${rIdx}`]);
+          box.setAttribute('aria-checked', !!appState.checked[key]);
           box.dataset.cat = cIdx;
           box.dataset.rew = rIdx;
-          if (appState.checked[`cat${cIdx}-rew${rIdx}`]) box.classList.add('checked');
-          box.addEventListener('click', () => toggleReward(cIdx, rIdx));
-          box.addEventListener('keydown', (e) => {
-            if (e.key === " " || e.key === "Enter") { toggleReward(cIdx, rIdx); }
-          });
+          if (appState.checked[key]) box.classList.add('checked');
 
-          if (box.classList.contains('checked')) {
-            box.innerHTML = "✔️";
-          }
-          li.appendChild(box);
+          // SVG checkmark
+          box.innerHTML = `
+            <svg viewBox="0 0 18 18">
+              <polyline points="4 10 8 14 14 5" fill="none"/>
+            </svg>
+          `;
+          box.onclick = () => toggleReward(cIdx, rIdx, reward, cat.name);
+
+          box.onkeydown = (e) => {
+            if (e.key === " " || e.key === "Enter") toggleReward(cIdx, rIdx, reward, cat.name);
+          };
 
           const label = document.createElement('span');
           label.className = 'reward-label';
-          label.textContent = r;
-          label.addEventListener('click', () => toggleReward(cIdx, rIdx));
-          li.appendChild(label);
+          label.textContent = reward;
+          label.onclick = () => toggleReward(cIdx, rIdx, reward, cat.name);
 
+          li.appendChild(box);
+          li.appendChild(label);
           ul.appendChild(li);
         });
-        catDiv.appendChild(ul);
 
-        // Add reward input
+        // Add custom reward input
         const addDiv = document.createElement('div');
         addDiv.className = 'add-reward';
         const input = document.createElement('input');
-        input.type = 'text';
-        input.placeholder = 'Custom reward...';
+        input.type = "text";
+        input.placeholder = "Add a custom reward...";
+        input.maxLength = 40;
         input.setAttribute('aria-label', 'Custom reward');
-        input.maxLength = 44;
-
         const btn = document.createElement('button');
-        btn.textContent = '+';
-        btn.setAttribute('aria-label', 'Add custom reward');
-
-        btn.addEventListener('click', () => {
+        btn.textContent = "+";
+        btn.onclick = () => {
           const val = input.value.trim();
           if (val) {
             appState.categories[cIdx].rewards.push(val);
             saveAndRender();
             input.value = '';
           }
-        });
-        input.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') btn.click();
-        });
-
+        };
+        input.onkeydown = (e) => { if (e.key === "Enter") btn.click(); };
         addDiv.appendChild(input);
         addDiv.appendChild(btn);
+        catDiv.appendChild(ul);
         catDiv.appendChild(addDiv);
 
         categoriesDiv.appendChild(catDiv);
       });
     }
 
-    function toggleReward(cIdx, rIdx) {
+    // Reward toggle
+    function toggleReward(cIdx, rIdx, rewardText, catName) {
       const key = `cat${cIdx}-rew${rIdx}`;
       appState.checked[key] = !appState.checked[key];
+      // Activity log
+      if (appState.checked[key]) {
+        appState.activity.unshift({
+          reward: rewardText,
+          category: catName,
+          time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        });
+      } else {
+        // Remove most recent matching log
+        const idx = appState.activity.findIndex(
+          entry => entry.reward === rewardText && entry.category === catName
+        );
+        if (idx > -1) appState.activity.splice(idx, 1);
+      }
       saveAndRender();
-      // Bounce animation
+      // Animate bounce
       setTimeout(() => {
         const box = document.querySelector(`[data-cat="${cIdx}"][data-rew="${rIdx}"]`);
-        if(box) {
-          box.style.transform = "scale(1.22)";
-          setTimeout(()=>box.style.transform="", 160);
+        if (box) {
+          box.style.transform = "scale(1.13)";
+          setTimeout(() => box.style.transform = "", 160);
         }
       }, 0);
-      if (getDoneCount() === getTotalCount()) showCelebrate();
-      else hideCelebrate();
     }
 
-    function getDoneCount() {
-      return Object.values(appState.checked).filter(Boolean).length;
-    }
-    function getTotalCount() {
-      return appState.categories.reduce((sum, cat) => sum + cat.rewards.length, 0);
-    }
-
-    // Stats & Progress Bar
-    function renderStats() {
-      document.getElementById('done-count').textContent = `${getDoneCount()} done`;
-      document.getElementById('total-count').textContent = `${getTotalCount()} total`;
-      document.getElementById('progress-bar').style.width =
-        (getTotalCount() === 0 ? 0 : Math.round(getDoneCount()*100/getTotalCount())) + '%';
-    }
-
-    // Celebrate Banner
-    function showCelebrate() {
-      const banner = document.getElementById('celebrate-banner');
-      banner.style.display = 'block';
-    }
-    function hideCelebrate() {
-      const banner = document.getElementById('celebrate-banner');
-      banner.style.display = 'none';
-    }
-
-    // Mood Section
+    // Mood selection
     document.querySelectorAll('.mood-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.onclick = function() {
         appState.mood = btn.dataset.mood;
         saveAndRender();
-      });
+      }
     });
+
+    // Stats and progress
+    function renderStats() {
+      const total = Object.values(appState.checked).filter(Boolean).length;
+      const grand = appState.categories.reduce((s, cat, i) => s + cat.rewards.length, 0);
+      document.getElementById('done-count').textContent = `${total} done`;
+      document.getElementById('total-count').textContent = `${grand} total`;
+      document.getElementById('progress-bar').style.width = grand === 0 ? "0%" : Math.round(total * 100 / grand) + "%";
+    }
+
+    // Activity log
+    function renderActivityLog() {
+      const logDiv = document.getElementById('activityLog');
+      logDiv.innerHTML = '';
+      appState.activity.slice(0, 7).forEach(entry => {
+        const div = document.createElement('div');
+        div.className = 'log-entry';
+        div.innerHTML = `<span>${entry.category}: ${entry.reward}</span> <span class="log-time">${entry.time}</span>`;
+        logDiv.appendChild(div);
+      });
+      if (!appState.activity.length) {
+        logDiv.innerHTML = `<div class="log-entry" style="color:var(--text-secondary);font-style:italic;">No activity yet</div>`;
+      }
+    }
+
+    // Mood
     function renderMood() {
       document.querySelectorAll('.mood-btn').forEach(btn => {
         btn.classList.toggle('selected', btn.dataset.mood === appState.mood);
       });
     }
 
-    // Save & Render All
+    // Save & render
     function saveAndRender() {
-      saveState(appState);
+      localStorage.setItem('dopamine-state', JSON.stringify(appState));
       renderCategories();
       renderStats();
+      renderActivityLog();
       renderMood();
-      // Show/hide celebration banner
-      if (getDoneCount() === getTotalCount() && getTotalCount() > 0) showCelebrate();
-      else hideCelebrate();
     }
 
-    // Init
+    // Reset
+    function resetDaily() {
+      if (confirm("Reset all progress for today?")) {
+        appState.checked = {};
+        appState.activity = [];
+        appState.mood = null;
+        saveAndRender();
+      }
+    }
+
+    // Initialize
     saveAndRender();
   </script>
 </body>
